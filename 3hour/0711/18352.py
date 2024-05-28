@@ -5,9 +5,9 @@ input = sys.stdin.readline
 
 N, M, K, X = list(map(int, input().split()))
 
-distance = [300001] * (N+1)
-visited = [False] * (N+1)
-graph = [[] for _ in range((N+1))]
+distance = [300001] * (300001)
+visited = [False] * (300001)
+graph = [[] for _ in range((300001))]
 
 for _ in range(M):
     u, v = list(map(int, input().split()))

@@ -8,7 +8,7 @@ for _ in range(int(input())):
     trans_data = deque([0] * N)
 
     count = 0
-    while True:
+    while True: 
         for i in range(N):
             if input_data[i] % 2 == 1:
                 input_data[i] += 1

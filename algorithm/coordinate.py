@@ -1,6 +1,7 @@
 x_count, y_count, K = 10, 8, 17
 
 # map 을 생성할 때는 x와 y를 반대로 생성해야 [x][y]로 접근할 수 있다.
+# x_count 는 row 의 개수, y_count 는 column 의 개수 이다.
 cabbage_map = [[0] * y_count for _ in range(x_count)]
 input_data = [
     [0, 0],
@@ -52,6 +53,14 @@ def bfs(current_x, current_y):
                 need_visit.append((nx, ny))
                 visited.append((nx, ny))
                 local_visited.append((nx, ny))
+
+    ### 아래의 코드가 더 낫지 않나?
+    # while need_visit:
+    #     x, y = need_visit.popleft()
+    #     if 0 <= x < x_length and 0 <= y < y_length and graph[y][x] != 'X' and (x, y) not in visited:
+    #         visited.append((x, y))
+    #         for i in range(4):
+    #             need_visit.append((x + dx[i], y + dy[i]))
 
     if local_visited:
         answer += 1
