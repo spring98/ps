@@ -4,21 +4,21 @@
 
 import random
 
-def bubbleSort(unOrderedList):
-    for i in range(len(unOrderedList) - 1):
+def bubbleSort(data):
+    for i in range(len(data) - 1):
         swap = False
-        for j in range(len(unOrderedList) - i - 1):
-            if unOrderedList[j+1] < unOrderedList[j]:
-                unOrderedList[j], unOrderedList[j+1] = unOrderedList[j+1], unOrderedList[j]
+        for j in range(len(data) - i - 1):
+            if data[j + 1] < data[j]:
+                data[j], data[j + 1] = data[j + 1], data[j]
                 swap = True
 
         if not swap:
             break
 
-    return unOrderedList
+    return data
 
-unOrderedList = random.sample(range(100), 10)
-print(unOrderedList)
+unOrdered = random.sample(range(100), 10)
+print(unOrdered)
 
-orderedList = bubbleSort(unOrderedList)
-print(orderedList)
+ordered = bubbleSort(unOrdered)
+print(ordered)
