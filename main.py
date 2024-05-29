@@ -1,37 +1,38 @@
-from itertools import product
+def solution(stones, k):
+    answer = 0
+    zeros = []
+    base = 0
 
-def solution(user_id, banned_id):
-    answers = set()
-    myMap = {}
+    for _ in range(len(set(stones))):
+        minValue = min(stones)
+        local_zeros = []
+        for i in range(len(stones)):
+            if stones[i] == minValue:
+                local_zeros.append(i)
+                stones[i] = 200000001
 
-    for id, ban in enumerate(banned_id):
-        for user in user_id:
-            isCorrect = True
-            if len(ban) == len(user):
-                for i in range(len(ban)):
-                    if ban[i] != '*' and user[i] != ban[i]:
-                        isCorrect = False
+        zeros.extend(local_zeros)
+
+        zeros.sort()
+        continuous_zero = 0
+        local_continuous_zero = []
+        for i in range(len(zeros)-1):
+            if zeros[i+1] - zeros[i] == 1:
+                continuous_zero += 1
             else:
-                isCorrect = False
+                local_continuous_zero.append(continuous_zero)
+                continuous_zero = 0
 
-            key = f'{id}_{ban}'
-            if isCorrect:
-                if key in myMap:
-                    myMap[key].append(user)
-                else:
-                    myMap[key] = [user]
+        local_continuous_zero.append(continuous_zero)
+        print(answer, zeros, local_continuous_zero)
 
-    # print(myMap)
-    values = myMap.values()
+        if local_continuous_zero and max(local_continuous_zero) > k:
+            return answer
 
-    for result in product(*list(values)):
-        if len(result) == len(set(result)):
-            answers.add(''.join(sorted(result)))
+        answer += minValue - base
+        base = minValue
 
-    return len(answers)
+    return answer+1
 
-print(f'result: {solution(["frodo", "fradi", "crodo", "abc123", "frodoc"], ["fr*d*", "abc1**"])}')
-print(f'result: {solution(["frodo", "fradi", "crodo", "abc123", "frodoc"], ["*rodo", "*rodo", "******"])}')
-print(f'result: {solution(["frodo", "fradi", "crodo", "abc123", "frodoc"], ["fr*d*", "*rodo", "******", "******"])}')
-# print(f'result: {solution(["frodo"], ["*****"])}')
-
+print(f'result: {solution([2, 4, 5, 3, 2, 1, 4, 2, 5, 1], 3)}')
+# print(f'result: {solution([1, 5], 1)}')
