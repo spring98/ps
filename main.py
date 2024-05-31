@@ -1,38 +1,35 @@
-def solution(stones, k):
-    answer = 0
-    zeros = []
-    base = 0
+def solution(tickets):
+    answer = []
+    graph = {}
 
-    for _ in range(len(set(stones))):
-        minValue = min(stones)
-        local_zeros = []
-        for i in range(len(stones)):
-            if stones[i] == minValue:
-                local_zeros.append(i)
-                stones[i] = 200000001
+    for start, end in tickets:
+        if start not in graph:
+            graph[start] = [end]
 
-        zeros.extend(local_zeros)
+        else:
+            graph[start].append(end)
+            graph[start].sort(reverse=True)
 
-        zeros.sort()
-        continuous_zero = 0
-        local_continuous_zero = []
-        for i in range(len(zeros)-1):
-            if zeros[i+1] - zeros[i] == 1:
-                continuous_zero += 1
-            else:
-                local_continuous_zero.append(continuous_zero)
-                continuous_zero = 0
+    def dfs():
+        need_visit = ['ICN']
 
-        local_continuous_zero.append(continuous_zero)
-        print(answer, zeros, local_continuous_zero)
+        while need_visit:
+            node = need_visit.pop()
+            answer.append(node)
 
-        if local_continuous_zero and max(local_continuous_zero) > k:
-            return answer
+            # if node in graph and graph[node]:
+            #     need_visit.append(graph[node].pop(0))
 
-        answer += minValue - base
-        base = minValue
+            if node in graph and graph[node]:
+                need_visit.extend(graph[node])
+                graph[node] = []
 
-    return answer+1
+                # print(graph, '     ', need_visit, '     ', node)
 
-print(f'result: {solution([2, 4, 5, 3, 2, 1, 4, 2, 5, 1], 3)}')
-# print(f'result: {solution([1, 5], 1)}')
+    dfs()
+
+    return answer
+
+print(f'result: {solution([["ICN", "JFK"], ["HND", "IAD"], ["JFK", "HND"]])}')
+# print(f'result: {solution([["ICN", "SFO"], ["ICN", "ATL"], ["SFO", "ATL"], ["ATL", "ICN"], ["ATL","SFO"]])}')
+# print(f'result: {solution([["ICN", "B"], ["B", "C"], ["C", "INC"]])}')

@@ -65,6 +65,7 @@ graph = [
 
 
 def dijkstra2(input_graph, start):
+    # 6 하드코딩
     distances = [float('inf') for _ in range(6)]
     distances[start] = 0
     queue = []
