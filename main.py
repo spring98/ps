@@ -1,35 +1,58 @@
-def solution(tickets):
-    answer = []
-    graph = {}
+def solution(board):
+    n = len(board)
+    dx = [0, 1, 0, -1]
+    dy = [1, 0, -1, 0]
 
-    for start, end in tickets:
-        if start not in graph:
-            graph[start] = [end]
+    all_paths = []
 
-        else:
-            graph[start].append(end)
-            graph[start].sort(reverse=True)
+    def dfs(x, y, path):
+        path.append((x, y))
 
-    def dfs():
-        need_visit = ['ICN']
+        if x == n - 1 and y == n - 1:
+            all_paths.append(path.copy())
+            path.pop()
+            print(path)
+            return
 
-        while need_visit:
-            node = need_visit.pop()
-            answer.append(node)
+        for i in range(4):
+            nx = x + dx[i]
+            ny = y + dy[i]
+            if 0 <= nx < n and 0 <= ny < n and (nx, ny) not in path and board[ny][nx] == 0:
+                dfs(nx, ny, path)
 
-            # if node in graph and graph[node]:
-            #     need_visit.append(graph[node].pop(0))
+        path.pop()
 
-            if node in graph and graph[node]:
-                need_visit.extend(graph[node])
-                graph[node] = []
+    dfs(0, 0, [])
 
-                # print(graph, '     ', need_visit, '     ', node)
+    print(all_paths)
 
-    dfs()
+    costs = []
+    for paths in all_paths:
+        prev = ''
+        cost = 0
+        for i in range(len(paths)-1):
+            startX, startY = paths[i]
+            endX, endY = paths[i+1]
+            curr = ''
 
-    return answer
+            if abs(endX - startX) == 1:
+                curr = 'H'
 
-print(f'result: {solution([["ICN", "JFK"], ["HND", "IAD"], ["JFK", "HND"]])}')
-# print(f'result: {solution([["ICN", "SFO"], ["ICN", "ATL"], ["SFO", "ATL"], ["ATL", "ICN"], ["ATL","SFO"]])}')
-# print(f'result: {solution([["ICN", "B"], ["B", "C"], ["C", "INC"]])}')
+            if abs(endY - startY) == 1:
+                curr = 'V'
+
+            if curr == 'H' and prev == 'V' or curr == 'V' and prev == 'H':
+                cost += 500
+
+            cost += 100
+            prev = curr
+
+        costs.append(cost)
+
+    return min(costs)
+
+# print(f'result: {solution([[0,0,0],[0,0,0],[0,0,0]])}')
+print(f'result: {solution([[0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,0],[0,0,0,0,0,1,0,0],[0,0,0,0,1,0,0,0],[0,0,0,1,0,0,0,1],[0,0,1,0,0,0,1,0],[0,1,0,0,0,1,0,0],[1,0,0,0,0,0,0,0]])}')
+# print(f'result: {solution([[0,0,1,0],[0,0,0,0],[0,1,0,1],[1,0,0,0]])}')
+# print(f'result: {solution([[0,0,0,0,0,0],[0,1,1,1,1,0],[0,0,1,0,0,0],[1,0,0,1,0,1],[0,1,0,0,0,1],[0,0,0,0,0,0]])}')
+
