@@ -93,3 +93,22 @@ print(dijkstra2(graph, 3))
 print(dijkstra2(graph, 4))
 print(dijkstra2(graph, 5))
 
+
+def dijkstra(start, adj, distance):
+    q = []
+    distance[start] = 0
+    heapq.heappush(q, (0, start))
+
+    while q:
+        dist, node = heapq.heappop(q)
+
+        # 메모된 거리가 dist보다 짧다면 더 이상 탐색할 필요가 없다.
+        if distance[node] < dist:
+            continue
+
+        for nxt in adj[node]:
+            nxt_distance = dist + 1
+
+            if distance[nxt] > nxt_distance:
+                distance[nxt] = nxt_distance
+                heapq.heappush(q, (nxt_distance, nxt))
