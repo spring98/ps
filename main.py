@@ -1,39 +1,66 @@
-def solution(scores):
-    score_list = []
-    wanho = scores[0]
+from collections import defaultdict
 
-    for a, b in scores:
-        score_list.append((a+b, a, b))
+BO = 'bo'
+GIDOONG = 'gidoong'
+def solution(n, build_frame):
+    answer = []
+    build_map = defaultdict(list)
+    build_map2 = defaultdict(list)
 
-    score_list.sort(reverse=True)
+    # a
+    for x, y, a, b in build_frame:
+        # 기둥
+        if a == 0:
+            # 설치
+            if b == 1:
+                # 설치 가능
+                if y == 0 or (x, y) in build_map[BO] or (x, y) in build_map[GIDOONG]:
+                    build_map[GIDOONG].append((x, y))
+                    build_map[GIDOONG].append((x, y+1))
+                    build_map2[GIDOONG].append((x, y))
 
-    # print(score_list)
-    end_index = 0
-    for i, score in enumerate(score_list):
-        if score[0] <= wanho[0]+wanho[1]:
-            end_index = i
-            break
+            # 삭제
+            else:
+                # 삭제할 기둥 위에 기둥인 경우
+                if (x, y+1) in build_map[GIDOONG]:
+                    if (x, y+1) in build_map[BO]:
+                        build_map[GIDOONG].remove((x, y))
+                        build_map[GIDOONG].remove((x, y+1))
+                        build_map2[GIDOONG].remove((x, y))
 
-    highest_list = score_list[:end_index].copy()
-    answer = len(highest_list)
+                # 삭제할 기둥 위에 보인 경우
+                if (x, y + 1) in build_map[BO]:
+                    if (x-1, y+1) in build_map[BO]:
+                        build_map[GIDOONG].remove((x, y))
+                        build_map[GIDOONG].remove((x, y + 1))
+                        build_map2[GIDOONG].remove((x, y))
+        # 보
+        else:
+            # 설치
+            if b == 1:
+                if (x, y) in build_map[GIDOONG] or (x+1, y) in build_map[GIDOONG] or ((x, y) in build_map[BO] and (x+1, y) in build_map[BO]):
+                    build_map[BO].append((x, y))
+                    build_map[BO].append((x+1, y))
+                    build_map2[BO].append((x, y))
 
-    for i in range(len(highest_list)-1):
-        for j in range(i+1, len(highest_list)):
-            s1, a1, b1 = highest_list[i]
-            s2, a2, b2 = highest_list[j]
+            # 삭제
+            else:
+                pass
 
-            if a1 < a2 and b1 < b2:
-                if a1 == wanho[0] and b1 == wanho[1]:
-                    return -1
+    for x, y in build_map2[GIDOONG]:
+        answer.append((x, y, 0))
 
-                answer -= 1
+    for x, y in build_map2[BO]:
+        answer.append((x, y, 1))
 
-            if a2 < a1 and b2 < b1:
-                if a2 == wanho[0] and b2 == wanho[1]:
-                    return -1
+    answer = list(set(answer))
+    answer = sorted(answer, key=lambda x: (x[0], x[1], x[2]))
+    answer2 = []
 
-                answer -= 1
+    for a, b, c in answer:
+        answer2.append([a, b, c])
 
-    return answer+1
+    return answer2
 
-print(f'result: {solution([[2,2],[1,4],[3,2],[3,2],[2,1]]	)}')
+
+print(f'result: {solution(5, [[1,0,0,1],[1,1,1,1],[2,1,0,1],[2,2,1,1],[5,0,0,1],[5,1,0,1],[4,2,1,1],[3,2,1,1]])}')
