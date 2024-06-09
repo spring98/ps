@@ -1,66 +1,76 @@
-from collections import defaultdict
+def solution(n, m, x, y, r, c, k):
+    answers = []
+    x_length = m
+    y_length = n
+    start_x, start_y = y-1, x-1
+    end_x, end_y = c-1, r-1
 
-BO = 'bo'
-GIDOONG = 'gidoong'
-def solution(n, build_frame):
-    answer = []
-    build_map = defaultdict(list)
-    build_map2 = defaultdict(list)
+    miro = [[0 for _ in range(x_length)] for _ in range(y_length)]
+    miro[start_y][start_x] = 'S'
+    miro[end_y][end_x] = 'E'
 
-    # a
-    for x, y, a, b in build_frame:
-        # 기둥
-        if a == 0:
-            # 설치
-            if b == 1:
-                # 설치 가능
-                if y == 0 or (x, y) in build_map[BO] or (x, y) in build_map[GIDOONG]:
-                    build_map[GIDOONG].append((x, y))
-                    build_map[GIDOONG].append((x, y+1))
-                    build_map2[GIDOONG].append((x, y))
+    visited = []
+    flag = False
 
-            # 삭제
-            else:
-                # 삭제할 기둥 위에 기둥인 경우
-                if (x, y+1) in build_map[GIDOONG]:
-                    if (x, y+1) in build_map[BO]:
-                        build_map[GIDOONG].remove((x, y))
-                        build_map[GIDOONG].remove((x, y+1))
-                        build_map2[GIDOONG].remove((x, y))
+    def dfs(local_x, local_y, path=''):
+        nonlocal flag
+        x, y, path = local_x, local_y, path
+        print(path)
+        if x == end_x and y == end_y and len(path) == k:
+            print(path)
+            answers.append(path)
+            flag = True
 
-                # 삭제할 기둥 위에 보인 경우
-                if (x, y + 1) in build_map[BO]:
-                    if (x-1, y+1) in build_map[BO]:
-                        build_map[GIDOONG].remove((x, y))
-                        build_map[GIDOONG].remove((x, y + 1))
-                        build_map2[GIDOONG].remove((x, y))
-        # 보
-        else:
-            # 설치
-            if b == 1:
-                if (x, y) in build_map[GIDOONG] or (x+1, y) in build_map[GIDOONG] or ((x, y) in build_map[BO] and (x+1, y) in build_map[BO]):
-                    build_map[BO].append((x, y))
-                    build_map[BO].append((x+1, y))
-                    build_map2[BO].append((x, y))
+        if flag or k < len(path):
+            return
 
-            # 삭제
-            else:
-                pass
+        # if (x, y) not in visited and 0 <= x < x_length and 0 <= y < y_length:
+        if 0 <= x < x_length and 0 <= y < y_length:
+            visited.append((x, y))
+            dfs(x, y+1, path+'d')
+            dfs(x-1, y, path+'l')
+            dfs(x+1, y, path+'r')
+            dfs(x, y-1, path+'u')
+            visited.remove((x, y))
 
-    for x, y in build_map2[GIDOONG]:
-        answer.append((x, y, 0))
+    dfs(start_x, start_y)
 
-    for x, y in build_map2[BO]:
-        answer.append((x, y, 1))
+    if answers:
+        return sorted(answers)[0]
 
-    answer = list(set(answer))
-    answer = sorted(answer, key=lambda x: (x[0], x[1], x[2]))
-    answer2 = []
+    else:
+        return 'impossible'
 
-    for a, b, c in answer:
-        answer2.append([a, b, c])
+# def solution(n, m, x, y, r, c, k):
+#     lrud = {0: 'd', 1: 'l', 2: 'r', 3: 'u'}
+#     dx = [1, 0, 0, -1]
+#     dy = [0, -1, 1, 0]
+#     answer = 'impossible'
+#     flag = False
+#     stack = []
+#
+#     def DFS(X, Y, L):
+#         nonlocal answer, flag
+#         if flag or k < L + abs(X - r) + abs(Y - c):
+#             return
+#         if L == k and (X, Y) == (r, c):
+#             answer = ''.join(stack)
+#             flag = True
+#         else:
+#             for i in range(4):
+#                 nX = X + dx[i]
+#                 nY = Y + dy[i]
+#                 if 1 <= nX <= n and 1 <= nY <= m:
+#                     stack.append(lrud[i])
+#                     DFS(nX, nY, L+1)
+#                     stack.pop()
+#
+#     dist = abs(x - r) + abs(y - c)
+#     if dist <= k and (k - dist) % 2 == 0:
+#         DFS(x, y, 0)
+#     return answer
 
-    return answer2
 
-
-print(f'result: {solution(5, [[1,0,0,1],[1,1,1,1],[2,1,0,1],[2,2,1,1],[5,0,0,1],[5,1,0,1],[4,2,1,1],[3,2,1,1]])}')
+print(f'result: {solution(3,4,2,3,3,1,5)}')
+# print(f'result: {solution(2,2,1,1,2,2,2)}')
+# print(f'result: {solution(3,3,1,2,3,3,4)}')
