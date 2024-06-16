@@ -1,76 +1,122 @@
-def solution(n, m, x, y, r, c, k):
-    answers = []
-    x_length = m
-    y_length = n
-    start_x, start_y = y-1, x-1
-    end_x, end_y = c-1, r-1
+def solution(commands):
+    answer = []
+    N = 50
+    table = [['' for _ in range(N+1)] for _ in range(N+1)]
+    merge_map = []
 
-    miro = [[0 for _ in range(x_length)] for _ in range(y_length)]
-    miro[start_y][start_x] = 'S'
-    miro[end_y][end_x] = 'E'
+    def update(comm):
+        # 모든 value1 를 value2 로 변경
+        if len(comm) == 3:
+            value1, value2 = comm[1], comm[2]
+            for r in range(N + 1):
+                for c in range(N + 1):
+                    if table[r][c] == value1:
+                        table[r][c] = value2
 
-    visited = []
-    flag = False
+        # (r, c) 의 값을 value 로 변경
+        elif len(comm) == 4:
+            r, c, value = int(comm[1]), int(comm[2]), comm[3]
+            myIndex = -1
+            for i, m in enumerate(merge_map):
+                if (r, c) in m:
+                    myIndex = i
+                    break
 
-    def dfs(local_x, local_y, path=''):
-        nonlocal flag
-        x, y, path = local_x, local_y, path
-        print(path)
-        if x == end_x and y == end_y and len(path) == k:
-            print(path)
-            answers.append(path)
-            flag = True
+            if myIndex == -1:
+                table[r][c] = value
+            else:
+                for _r, _c in merge_map[myIndex]:
+                    table[_r][_c] = value
 
-        if flag or k < len(path):
+    def merge(r1, c1, r2, c2):
+        if (r1, c1) == (r2, c2):
             return
 
-        # if (x, y) not in visited and 0 <= x < x_length and 0 <= y < y_length:
-        if 0 <= x < x_length and 0 <= y < y_length:
-            visited.append((x, y))
-            dfs(x, y+1, path+'d')
-            dfs(x-1, y, path+'l')
-            dfs(x+1, y, path+'r')
-            dfs(x, y-1, path+'u')
-            visited.remove((x, y))
+        index1 = -1
+        index2 = -1
+        for i, m in enumerate(merge_map):
+            if (r1, c1) in m:
+                index1 = i
 
-    dfs(start_x, start_y)
+            if (r2, c2) in m:
+                index2 = i
 
-    if answers:
-        return sorted(answers)[0]
+        if index1 != -1 and index2 != -1:
+            merge_map[index1] = merge_map[index1].union(merge_map[index2])
+            merge_map.pop(index2)
 
-    else:
-        return 'impossible'
+        if index1 != -1 and index2 == -1:
+            merge_map[index1].add((r2, c2))
 
-# def solution(n, m, x, y, r, c, k):
-#     lrud = {0: 'd', 1: 'l', 2: 'r', 3: 'u'}
-#     dx = [1, 0, 0, -1]
-#     dy = [0, -1, 1, 0]
-#     answer = 'impossible'
-#     flag = False
-#     stack = []
-#
-#     def DFS(X, Y, L):
-#         nonlocal answer, flag
-#         if flag or k < L + abs(X - r) + abs(Y - c):
-#             return
-#         if L == k and (X, Y) == (r, c):
-#             answer = ''.join(stack)
-#             flag = True
-#         else:
-#             for i in range(4):
-#                 nX = X + dx[i]
-#                 nY = Y + dy[i]
-#                 if 1 <= nX <= n and 1 <= nY <= m:
-#                     stack.append(lrud[i])
-#                     DFS(nX, nY, L+1)
-#                     stack.pop()
-#
-#     dist = abs(x - r) + abs(y - c)
-#     if dist <= k and (k - dist) % 2 == 0:
-#         DFS(x, y, 0)
-#     return answer
+        if index1 == -1 and index2 != -1:
+            merge_map[index2].add((r1, c1))
 
+        if index1 == -1 and index2 == -1:
+            merge_map.append({(r1, c1), (r2, c2)})
 
-print(f'result: {solution(3,4,2,3,3,1,5)}')
-# print(f'result: {solution(2,2,1,1,2,2,2)}')
-# print(f'result: {solution(3,3,1,2,3,3,4)}')
+        # print(merge_map, len(merge_map), index1, index2, r1, c1, r2, c2)
+        myIndex = -1
+        myValue = ''
+        for i, m in enumerate(merge_map):
+            if (r1, c1) in m:
+                myIndex = i
+                break
+
+        if myIndex != -1:
+            if table[r1][c1]:
+                for r, c in merge_map[myIndex]:
+                    table[r][c] = table[r1][c1]
+            else:
+                for r, c in merge_map[myIndex]:
+                    if table[r][c]:
+                        myValue = table[r][c]
+                        break
+
+                for r, c in merge_map[myIndex]:
+                    table[r][c] = myValue
+
+    def unmerge(param_r, param_c):
+        myIndex = -1
+        myValue = table[param_r][param_c]
+        for i, m in enumerate(merge_map):
+            if (param_r, param_c) in m:
+                myIndex = i
+                break
+
+        if myIndex != -1:
+            for r, c in merge_map[myIndex]:
+                table[r][c] = ''
+
+        table[param_r][param_c] = myValue
+
+    def table_print(r, c):
+        if table[r][c]:
+            answer.append(table[r][c])
+        else:
+            answer.append('EMPTY')
+
+    def pppp():
+        for t in table:
+            print(t)
+        print()
+
+    for command in commands:
+        comm = list(command.split(' '))
+        if comm[0] == 'UPDATE':
+            update(comm)
+
+        elif comm[0] == 'MERGE':
+            merge(int(comm[1]), int(comm[2]), int(comm[3]), int(comm[4]))
+
+        elif comm[0] == 'UNMERGE':
+            unmerge(int(comm[1]), int(comm[2]))
+
+        # (r, c) 의 값을 출력
+        elif comm[0] == 'PRINT':
+            table_print(int(comm[1]), int(comm[2]))
+
+    # pppp()
+    return answer
+
+print(f'result: {solution(["UPDATE 1 1 menu", "UPDATE 1 2 category", "UPDATE 2 1 bibimbap", "UPDATE 2 2 korean", "UPDATE 2 3 rice", "UPDATE 3 1 ramyeon", "UPDATE 3 2 korean", "UPDATE 3 3 noodle", "UPDATE 3 4 instant", "UPDATE 4 1 pasta", "UPDATE 4 2 italian", "UPDATE 4 3 noodle", "MERGE 1 2 1 3", "MERGE 1 3 1 4", "UPDATE korean hansik", "UPDATE 1 3 group", "UNMERGE 1 4", "PRINT 1 3", "PRINT 1 4"])}')
+# print(f'result: {solution(["UPDATE 1 1 a", "UPDATE 1 2 b", "UPDATE 2 1 c", "UPDATE 2 2 d", "MERGE 1 1 1 2", "MERGE 2 2 2 1", "MERGE 2 1 1 1", "PRINT 1 1", "UNMERGE 2 2", "PRINT 1 1"])}')
