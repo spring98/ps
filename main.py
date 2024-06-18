@@ -1,38 +1,37 @@
-from itertools import permutations
-def solution(matrix_sizes):
-    table = []
+def solution(alp, cop, problems):
+    alps = []
+    cops = []
+    alp_max = 0
+    cops_max = 0
 
-    for i, matrix in enumerate(matrix_sizes):
-        a, b = matrix
-        if i == 0:
-            table.append(a)
+    for a, b, c, d, e in problems:
+        alps.append(a)
+        cops.append(b)
 
-        elif i == len(matrix_sizes)-1:
-            table.append(a)
-            table.append(b)
+    alp_max = max(alps)
+    cops_max = max(cops)
+    alp = min(alp, alp_max)
+    cop = min(cop, cops_max)
 
-        else:
-            table.append(a)
+    problems.append([0, 0, 1, 0, 1])
+    problems.append([0, 0, 0, 1, 1])
 
-    total_sum = 100000000
-    for perm in permutations(range(1, len(table)-1), len(table)-2):
-        my_table = table.copy()
-        my_table_sum = 0
-        for p in list(perm):
-            prev, cur, next = p-1, p, p+1
+    dp = [[float('inf') for _ in range(cops_max+1)] for _ in range(alp_max+1)]
+    dp[alp][cop] = 0
 
-            while not my_table[prev]:
-                prev -= 1
+    for a in range(alp, alp_max+1):
+        for c in range(cop, cops_max+1):
+            for alp_req, cop_req, alp_rwd, cop_rwd, cost in problems:
+                if alp_req <= a and cop_req <= c:
+                    new_alp = min(a + alp_rwd, alp_max)
+                    new_cop = min(c + cop_rwd, cops_max)
+                    dp[new_alp][new_cop] = min(dp[new_alp][new_cop], dp[a][c] + cost)
 
-            while not my_table[next]:
-                next += 1
+    # for d in dp:
+    #     print(d)
 
-            my_table_sum += my_table[prev] * my_table[cur] * my_table[next]
-            my_table[cur] = 0
+    return dp[alp_max][cops_max]
 
-        total_sum = min(total_sum, my_table_sum)
-
-    return total_sum
-
-# print(f'result: {solution([[5,3],[3,10],[10,6]])}')
-print(f'result: {solution([[5,3],[3,10],[10,6],[6,1]])}')
+print(f'result: {solution(10,10,[[10,15,2,1,2],[20,20,3,3,4]])}')
+print(f'result: {solution(0,0,[[0,5,2,1,2],[10,10,3,3,4]])}')
+print(f'result: {solution(0,0,[[0,0,2,1,2],[4,5,3,1,2],[4,11,4,0,2],[10,4,0,4,2]])}')
