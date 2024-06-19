@@ -1,37 +1,35 @@
-def solution(alp, cop, problems):
-    alps = []
-    cops = []
-    alp_max = 0
-    cops_max = 0
+def solution(lines):
+    def timeToMillis(time):
+        hh, mm, ss = time.split(':')
+        ss, ms = ss.split('.')
 
-    for a, b, c, d, e in problems:
-        alps.append(a)
-        cops.append(b)
+        return (int(hh) * 3600 + int(mm)*60 + int(ss))*1000 + int(ms)
 
-    alp_max = max(alps)
-    cops_max = max(cops)
-    alp = min(alp, alp_max)
-    cop = min(cop, cops_max)
+    logs = []
 
-    problems.append([0, 0, 1, 0, 1])
-    problems.append([0, 0, 0, 1, 1])
+    for line in lines:
+        date, time, duration = line.split(' ')
+        millis = timeToMillis(time)
+        duration = int(float(duration[:-1])*1000)
+        logs.append((millis-duration+1, millis))
 
-    dp = [[float('inf') for _ in range(cops_max+1)] for _ in range(alp_max+1)]
-    dp[alp][cop] = 0
+    answer = 0
+    for i in range(len(logs)):
+        local_count = 1
+        for j in range(i+1, len(logs)):
+            current_start, current_end = logs[i]
+            next_start, next_end = logs[j]
 
-    for a in range(alp, alp_max+1):
-        for c in range(cop, cops_max+1):
-            for alp_req, cop_req, alp_rwd, cop_rwd, cost in problems:
-                if alp_req <= a and cop_req <= c:
-                    new_alp = min(a + alp_rwd, alp_max)
-                    new_cop = min(c + cop_rwd, cops_max)
-                    dp[new_alp][new_cop] = min(dp[new_alp][new_cop], dp[a][c] + cost)
+            # print(current_start, current_end, next_start, next_end)
+            # print(next_start, current_end + 999)
 
-    # for d in dp:
-    #     print(d)
+            if next_start <= current_end + 999:
+                local_count += 1
 
-    return dp[alp_max][cops_max]
+        answer = max(answer, local_count)
 
-print(f'result: {solution(10,10,[[10,15,2,1,2],[20,20,3,3,4]])}')
-print(f'result: {solution(0,0,[[0,5,2,1,2],[10,10,3,3,4]])}')
-print(f'result: {solution(0,0,[[0,0,2,1,2],[4,5,3,1,2],[4,11,4,0,2],[10,4,0,4,2]])}')
+    return answer
+
+# print(f'result: {solution(["2016-09-15 01:00:04.001 2.0s","2016-09-15 01:00:07.000 2s"])}')
+# print(f'result: {solution(["2016-09-15 01:00:04.002 2.0s","2016-09-15 01:00:07.000 2s"])}')
+print(f'result: {solution(["2016-09-15 20:59:57.421 0.351s","2016-09-15 20:59:58.233 1.181s","2016-09-15 20:59:58.299 0.8s","2016-09-15 20:59:58.688 1.041s","2016-09-15 20:59:59.591 1.412s","2016-09-15 21:00:00.464 1.466s","2016-09-15 21:00:00.741 1.581s","2016-09-15 21:00:00.748 2.31s","2016-09-15 21:00:00.966 0.381s","2016-09-15 21:00:02.066 2.62s"])}')
