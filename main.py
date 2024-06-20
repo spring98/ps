@@ -1,35 +1,61 @@
-def solution(lines):
-    def timeToMillis(time):
-        hh, mm, ss = time.split(':')
-        ss, ms = ss.split('.')
+import heapq, math
 
-        return (int(hh) * 3600 + int(mm)*60 + int(ss))*1000 + int(ms)
+# def count_divisors_sqrt(n):
+#     count = 0
+#     for i in range(1, int(math.sqrt(n)) + 1):
+#         if n % i == 0:
+#             if i == n // i:
+#                 count += 1  # i와 n//i가 같은 경우 (완전 제곱수)
+#             else:
+#                 count += 2  # i와 n//i가 다른 경우
+#     return count
 
-    logs = []
+def solution(e, starts):
+    answers = []
+    myStarts = []
 
-    for line in lines:
-        date, time, duration = line.split(' ')
-        millis = timeToMillis(time)
-        duration = int(float(duration[:-1])*1000)
-        logs.append((millis-duration+1, millis))
+    for i, start in enumerate(starts):
+        myStarts.append((start, i))
 
-    answer = 0
-    for i in range(len(logs)):
-        local_count = 1
-        for j in range(i+1, len(logs)):
-            current_start, current_end = logs[i]
-            next_start, next_end = logs[j]
+    myStarts.sort()
 
-            # print(current_start, current_end, next_start, next_end)
-            # print(next_start, current_end + 999)
+    table = [0] * (e + 1)
+    for i in range(2, e + 1):
+        for j in range(1, min(e // i + 1, i)):
+            table[i * j] += 2
+    for i in range(1, int(e ** (1 / 2)) + 1):
+        table[i ** 2] += 1
 
-            if next_start <= current_end + 999:
-                local_count += 1
+    # table = [-1]
+    # for n in range(1, e+1):
+    #     table.append(count_divisors_sqrt(n))
 
-        answer = max(answer, local_count)
+    # print(table)
+    myHeap = []
+    for i, t in enumerate(table):
+        heapq.heappush(myHeap, (-t, i))
 
-    return answer
+    for start, priority in myStarts:
+        while myHeap:
+            value, index = heapq.heappop(myHeap)
 
-# print(f'result: {solution(["2016-09-15 01:00:04.001 2.0s","2016-09-15 01:00:07.000 2s"])}')
-# print(f'result: {solution(["2016-09-15 01:00:04.002 2.0s","2016-09-15 01:00:07.000 2s"])}')
-print(f'result: {solution(["2016-09-15 20:59:57.421 0.351s","2016-09-15 20:59:58.233 1.181s","2016-09-15 20:59:58.299 0.8s","2016-09-15 20:59:58.688 1.041s","2016-09-15 20:59:59.591 1.412s","2016-09-15 21:00:00.464 1.466s","2016-09-15 21:00:00.741 1.581s","2016-09-15 21:00:00.748 2.31s","2016-09-15 21:00:00.966 0.381s","2016-09-15 21:00:02.066 2.62s"])}')
+            if start <= index:
+                answers.append((priority, index))
+                heapq.heappush(myHeap, (value, index))
+                break
+
+    answers.sort()
+    # print(answers)
+    re = []
+    for p, value in answers:
+        re.append(value)
+
+    return re
+
+# print(f'result: {solution(8,[1,3,7])}')
+print(f'result: {solution(8,[7,3,1])}')
+# print(f'result: {solution(15,[7,8])}')
+# print(f'result: {solution(11,[6,8])}')
+# print(f'result: {solution(1000,[])}')
+
+
